@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Sign Language Assistant (app.py)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/app.py",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Train Models (train.py)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/train.py",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Evaluate Models (evaluate.py)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/evaluate.py",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

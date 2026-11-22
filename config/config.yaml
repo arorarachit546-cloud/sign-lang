@@ -1,0 +1,92 @@
+# ==============================================================================
+# Configuration: Sign Language Recognition and Translation Assistant
+# ==============================================================================
+
+project:
+  name: "Sign Language Recognition and Translation Assistant"
+  version: "1.0.0"
+  seed: 42
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  sequence_length: 30         # Temporal window T = 30 frames (~1.0s at 30 FPS)
+  num_landmarks: 75           # 21 Left Hand + 21 Right Hand + 33 Pose (Upper 25 used)
+  coords_per_landmark: 3      # (x, y, z)
+  feature_dim: 201            # (21 + 21 + 25) * 3 = 201 coordinates per frame
+  classes:
+    - "Hello"
+    - "Thank You"
+    - "Yes"
+    - "No"
+    - "Help"
+    - "Emergency"
+    - "Please"
+    - "I Love You"
+    - "Water"
+    - "Goodbye"
+  split_ratio:
+    train: 0.70
+    val: 0.15
+    test: 0.15
+  signer_disjoint: true
+
+augmentation:
+  enabled: true
+  spatial_scale_range: [0.85, 1.15]
+  rotation_angle_range: [-15.0, 15.0]  # in degrees
+  temporal_warp_range: [0.8, 1.2]
+  gaussian_noise_std: 0.005
+  keypoint_dropout_rate: 0.05
+
+models:
+  baseline_1dcnn:
+    num_filters: [64, 128, 256]
+    kernel_sizes: [5, 5, 3]
+    dropout: 0.3
+    dense_dim: 128
+
+  bilstm_attention:
+    spatial_embed_dim: 128
+    hidden_dim: 128            # 128 per direction -> 256 bidirectional
+    num_layers: 2
+    recurrent_dropout: 0.25
+    dense_dim: 128
+    fc_dropout: 0.4
+
+training:
+  batch_size: 32
+  epochs: 60
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  label_smoothing: 0.1
+  gradient_clip_norm: 1.0
+  lr_scheduler:
+    name: "CosineAnnealingWarmRestarts"
+    T_0: 10
+    T_mult: 2
+    eta_min: 0.00001
+  early_stopping:
+    patience: 10
+    min_delta: 0.001
+  checkpoint_dir: "checkpoints"
+
+evaluation:
+  results_dir: "results"
+  figures_dir: "results/figures"
+  metrics:
+    - "top1_accuracy"
+    - "top5_accuracy"
+    - "precision"
+    - "recall"
+    - "macro_f1"
+    - "confusion_matrix"
+    - "latency_ms"
+
+assistant:
+  confidence_threshold: 0.75
+  debounce_frames: 5          # Consecutive identical predictions needed to commit sign
+  tts_rate: 160               # Speech words per minute
+  tts_volume: 0.9
+  camera_index: 0
+  fps_target: 30
